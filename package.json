@@ -8,7 +8,7 @@
     "start": "node ./dist/src/index.js",
     "load-commands": "node ./dist/src/deploy-commands.js",
     "clean": "rm -rf ./dist",
-    "build": "npm run clean && npm run prettify && tsc",
+    "build": "npm run clean && npm run prettify && tsc && npm run load-commands",
     "test": "jest",
     "dev": "npm run clean && nodemon -e ts --exec \"npm run build && npm start\"",
     "prettify": "npx prettier --write 'src/**/*.ts'"

@@ -5,6 +5,7 @@ import PIL.Image
 import PIL.ImageDraw
 
 import os
+import sys
 import dotenv
 from api.py.api_service import APIService
 from api.py.google_credentials import GoogleCredentials
@@ -25,26 +26,20 @@ def main():
         pageSize=10).execute()
 
     folders = (response.get('files', []))
-    folders = sorted(folders, key=lambda k: k['name'])
-    for folder in folders:
-        folder_name = folder.get('name')
-
-        os.makedirs(f'./dist/assets', exist_ok=True)
-        os.makedirs(f'./dist/assets/{folder_name}', exist_ok=True)
-        print(folder_name, "created")
-
-        folder_id = folder.get('id')
-        response = drive_service.service().files().list(q=f"'{folder_id}' in parents").execute()
-        files = response.get('files', [])
-        files = sorted(files, key=lambda k: k['name'])
-        for file in files:
-            media = drive_service.service().files().get_media(fileId=file.get('id')).execute()
-            image = PIL.Image.open(io.BytesIO(media))
-            image.save(f'./dist/assets/{folder_name}/{file.get("name")}')
-            print("\t", file.get('name'), "created")
-
-    # with open('items.json', 'w') as file:
-    #     json.dump(files, file, indent=4, sort_keys=True, ensure_ascii=False)
-
+    # folders = sorted(folders, key=lambda k: k['name'])
+    folder = list(filter(lambda x: x.get('name') == sys.argv[1], folders))[0]
+    folder_name = folder.get('name')
+    os.makedirs(f'./dist/assets', exist_ok=True)
+    os.makedirs(f'./dist/assets/{folder_name}', exist_ok=True)
+    print(folder_name, "created")
+    folder_id = folder.get('id')
+    response = drive_service.service().files().list(q=f"'{folder_id}' in parents").execute()
+    files = response.get('files', [])
+    files = sorted(files, key=lambda k: k['name'])
+    for file in files:
+        media = drive_service.service().files().get_media(fileId=file.get('id')).execute()
+        image = PIL.Image.open(io.BytesIO(media))
+        image.save(f'./dist/assets/{folder_name}/{file.get("name")}')
+        print("\t", file.get('name'), "created")
 
 main()
